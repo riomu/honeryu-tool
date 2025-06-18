@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="robots" content="noindex">
+  <title>培養輝晶獣損益・期待値計算ツール</title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", sans-serif;
+      background: #f1f1f1;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 650px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    p.subtitle {
+      font-size: 0.9rem;
+      text-align: center;
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .form-group label {
+      font-weight: bold;
+      min-width: 160px;
+    }
+
+    .form-group input[type="number"],
+    .form-group select {
+      padding: 5px 8px;
+      font-size: 0.9rem;
+      width: 120px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      text-align: right;
+    }
+
+    .unit {
+      margin-left: 4px;
+      color: #555;
+    }
+
+    .counters {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .counter-box {
+      flex: 1;
+      margin: 0 5px;
+    }
+
+    .counter-box label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .counter-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .counter-controls input[type="number"] {
+      width: 50px;
+      text-align: center;
+      margin: 0 5px;
+      font-size: 1rem;
+      padding: 4px;
+    }
+
+    .counter-controls button {
+      padding: 4px 8px;
+      font-size: 0.9rem;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .counter-controls button:hover {
+      background-color: #45a049;
+    }
+
+    .buttons {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .buttons button {
+      padding: 6px 14px;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 6px;
+      background-color: #f44336;
+      color: white;
+      cursor: pointer;
+    }
+
+    .buttons button:hover {
+      background-color: #d32f2f;
+    }
+
+    .result {
+      margin-top: 25px;
+      border-top: 1px solid #ccc;
+      padding-top: 15px;
+    }
+
+    .result p {
+      margin: 6px 0;
+      font-weight: bold;
+    }
+
+    @media screen and (max-width: 600px) {
+      .form-group {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .form-group label {
+        margin-bottom: 5px;
+      }
+
+      .form-group input[type="number"],
+      .form-group select {
+        width: 100%;
+      }
+
+      .counters {
+        flex-direction: column;
+      }
+
+      .counter-box {
+        margin-bottom: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>培養輝晶獣 損益・期待値計算ツール</h1>
+    <p class="subtitle">ドグドラやバンバジャなどの持ち寄り計算に最適！</p>
+
+    <div class="form-group">
+      <label for="cellPrice">細胞1つあたりの値段</label>
+      <div>
+        <input type="number" id="cellPrice" placeholder="85000" />
+        <span class="unit">G</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="corePrice">核1つあたりの値段</label>
+      <div>
+        <input type="number" id="corePrice" placeholder="1200000" />
+        <span class="unit">G</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="partyCount">持ち寄り数</label>
+      <div>
+        <select id="partyCount"></select>
+        <span class="unit">回</span>
+      </div>
+    </div>
+
+    <div class="counters">
+      <div class="counter-box">
+        <label>45個</label>
+        <div class="counter-controls">
+          <button onclick="changeCount('count45', -1)">－</button>
+          <input type="number" id="count45" value="0" onchange="calculateProfit()" />
+          <button onclick="changeCount('count45', 1)">＋</button>
+        </div>
+      </div>
+
+      <div class="counter-box">
+        <label>75個</label>
+        <div class="counter-controls">
+          <button onclick="changeCount('count75', -1)">－</button>
+          <input type="number" id="count75" value="0" onchange="calculateProfit()" />
+          <button onclick="changeCount('count75', 1)">＋</button>
+        </div>
+      </div>
+
+      <div class="counter-box">
+        <label>核</label>
+        <div class="counter-controls">
+          <button onclick="changeCount('countCore', -1)">－</button>
+          <input type="number" id="countCore" value="0" onchange="calculateProfit()" />
+          <button onclick="changeCount('countCore', 1)">＋</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button onclick="resetCounts()">カウントリセット</button>
+    </div>
+
+    <div class="result" id="resultArea">
+      ここに計算結果が表示されます。
+    </div>
+  </div>
+
+  <script>
+    const partySelect = document.getElementById('partyCount');
+    for (let i = 1; i <= 15; i++) {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = i;
+      partySelect.appendChild(opt);
+    }
+    partySelect.value = 1;
+
+    function changeCount(id, delta) {
+      const input = document.getElementById(id);
+      let value = parseInt(input.value) || 0;
+      value = Math.max(0, value + delta);
+      input.value = value;
+      calculateProfit();
+    }
+
+    function resetCounts() {
+      ['count45', 'count75', 'countCore'].forEach(id => {
+        document.getElementById(id).value = 0;
+      });
+      calculateProfit();
+    }
+
+    function calculateProfit() {
+      const cellPrice = parseInt(document.getElementById("cellPrice").value) || 85000;
+      const corePrice = parseInt(document.getElementById("corePrice").value) || 1200000;
+      const partyCount = parseInt(document.getElementById("partyCount").value) || 1;
+
+      const count45 = parseInt(document.getElementById("count45").value) || 0;
+      const count75 = parseInt(document.getElementById("count75").value) || 0;
+      const countCore = parseInt(document.getElementById("countCore").value) || 0;
+
+      const totalFragments = count45 * 45 + count75 * 75;
+      const totalCoresFromFragments = totalFragments / 99;
+      const totalCores = totalCoresFromFragments + countCore;
+
+      const revenueBeforeFee = totalCores * corePrice;
+      const revenueAfterFee = Math.floor(revenueBeforeFee * 0.95);
+
+      const totalCellsUsed = 30 * partyCount;
+      const totalCost = totalCellsUsed * cellPrice;
+      const profit = revenueAfterFee - totalCost;
+
+      // 期待値計算
+      const totalDrops = partyCount * 4;
+      const expected45 = (4 / 10) * totalDrops;
+      const expected75 = (5 / 10) * totalDrops;
+      const expectedCore = (1 / 10) * totalDrops;
+      const expectedFragments = expected45 * 45 + expected75 * 75;
+      const expectedTotalCores = expectedFragments / 99 + expectedCore;
+      const expectedRevenue = expectedTotalCores * corePrice * 0.95;
+      const expectedProfitPer = expectedRevenue - totalCost;
+      const expectedProfitPerUnit = expectedProfitPer / partyCount;
+
+      document.getElementById("resultArea").innerHTML = `
+        <p>支出（細胞${cellPrice.toLocaleString()}×30×${partyCount}）：<strong>${totalCost.toLocaleString()} G</strong></p>
+        <p>収益（核 ${totalCores.toFixed(1)} 個 × ${corePrice.toLocaleString()} × 95%）：<strong>${revenueAfterFee.toLocaleString()} G</strong></p>
+        <p>純利益：<strong>${profit.toLocaleString()} G</strong></p>
+        <hr />
+        <p>★ 期待値ベースの収益（${partyCount}持ち寄り）：</p>
+        <p>核期待数：<strong>${expectedTotalCores.toFixed(1)} 個</strong></p>
+        <p>1持ち寄りあたりの期待利益：<strong>${Math.floor(expectedProfitPerUnit).toLocaleString()} G</strong></p>
+        <p>${partyCount}持ち寄りあたりの期待利益：<strong>${Math.floor(expectedProfitPer).toLocaleString()} G</strong></p>
+      `;
+    }
+
+    ['cellPrice', 'corePrice'].forEach(id =>
+      document.getElementById(id).addEventListener('input', calculateProfit)
+    );
+    partySelect.addEventListener('change', calculateProfit);
+
+    ['count45', 'count75', 'countCore'].forEach(id =>
+      document.getElementById(id).addEventListener('change', calculateProfit)
+    );
+
+    calculateProfit();
+  </script>
+</body>
+</html>
